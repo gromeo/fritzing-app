@@ -1,7 +1,7 @@
 /*******************************************************************
 
 Part of the Fritzing project - http://fritzing.org
-Copyright (c) 2007-2016 Fritzing
+Copyright (c) 2007-2019 Fritzing
 
 Fritzing is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,12 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Fritzing.  If not, see <http://www.gnu.org/licenses/>.
 
-*********************************************************************
-
-$Revision: 9268 $:
-$Author: irascibl@gmail.com $:
-$Date: 2014-06-11 17:47:21 +0200 (We, 11. Jun 2013) $
-
 ********************************************************************/
 
 #include "version.h"
@@ -35,13 +29,13 @@ $Date: 2014-06-11 17:47:21 +0200 (We, 11. Jun 2013) $
 #include "../utils/textutils.h"
 #include "../lib/qtsysteminfo/QtSystemInfo.h"
 
+
 QString Version::m_majorVersion("0");
 QString Version::m_minorVersion("9");
-QString Version::m_minorSubVersion("3");
-QString Version::m_modifier("b");
-QString Version::m_gitCommit("5c895d327c44a3114e5fcc9d8260daf0cbb52806");
-QString Version::m_gitDate("2016-04-19T21:25:37Z");  // want standard ISO form
-QString Version::m_revision;
+QString Version::m_minorSubVersion("4");
+QString Version::m_modifier("");
+QString Version::m_gitVersion(GIT_VERSION);
+QString Version::m_gitDate(GIT_DATE);  // want standard ISO form
 QString Version::m_date;
 QString Version::m_shortDate;
 QString Version::m_versionString;
@@ -57,12 +51,10 @@ Version::Version() {
 		m_modifiers << "a" << "b" << "rc" << "";
 	}
 
-    m_revision = m_gitCommit;
-
-    QStringList strings;
-    strings = m_gitDate.split("T", QString::SkipEmptyParts);
+	QStringList strings;
+	strings = m_gitDate.split("T", QString::SkipEmptyParts);
 	if (strings.size() >= 2) {
-        m_date = strings[0];
+		m_date = strings[0];
 		strings = m_date.split("-", QString::SkipEmptyParts);
 		if (strings.size() >= 3) {
 			m_shortDate = strings[1] + "." + strings[2];
@@ -70,7 +62,7 @@ Version::Version() {
 		}
 	}
 
-	m_versionString = QString("%1.%2.%3%4.%5.%6").arg(m_majorVersion).arg(m_minorVersion).arg(m_minorSubVersion).arg(m_modifier).arg(m_shortDate).arg(m_revision);
+    m_versionString = QString("%1.%2.%3%4.%5.%6").arg(m_majorVersion).arg(m_minorVersion).arg(m_minorSubVersion).arg(m_modifier).arg(m_date).arg(m_gitVersion);
 }
 
 const QString & Version::majorVersion() {
@@ -85,10 +77,6 @@ const QString & Version::minorSubVersion() {
 	return m_minorSubVersion;
 }
 
-const QString & Version::revision() {
-	return m_revision;
-}
-
 const QString & Version::modifier() {
 	return m_modifier;
 }
@@ -97,8 +85,12 @@ const QString & Version::versionString() {
 	return m_versionString;
 }
 
+const QString & Version::gitVersion() {
+	return m_gitVersion;
+}
+
 const QString & Version::fullDate() {
-    return m_gitDate;
+	return m_gitDate;
 }
 
 const QString & Version::date() {
@@ -202,8 +194,8 @@ QString Version::makeRequestParamsString(bool withID) {
 		settings.setValue("pid", TextUtils::getRandText());
 	}
 
-    QString id;
-    if (withID) id = QString("&pid=%1").arg(settings.value("pid").toString());
+	QString id;
+	if (withID) id = QString("&pid=%1").arg(settings.value("pid").toString());
 	QtSystemInfo systemInfo(NULL);
 	QString siVersion(QUrl::toPercentEncoding(Version::versionString()));
 	QString siSystemName(QUrl::toPercentEncoding(systemInfo.systemName()));
@@ -211,14 +203,14 @@ QString Version::makeRequestParamsString(bool withID) {
 	QString siKernelName(QUrl::toPercentEncoding(systemInfo.kernelName()));
 	QString siKernelVersion(QUrl::toPercentEncoding(systemInfo.kernelVersion()));
 	QString siArchitecture(QUrl::toPercentEncoding(systemInfo.architectureName()));
-    QString string = QString("?version=%2&sysname=%3&kernname=%4&kernversion=%5&arch=%6&sysversion=%7%8")
-		.arg(siVersion)
-		.arg(siSystemName)
-		.arg(siKernelName)
-		.arg(siKernelVersion)
-		.arg(siArchitecture)
-		.arg(siSystemVersion)
-        .arg(id)
-        ;
+	QString string = QString("?version=%2&sysname=%3&kernname=%4&kernversion=%5&arch=%6&sysversion=%7%8")
+	                 .arg(siVersion)
+	                 .arg(siSystemName)
+	                 .arg(siKernelName)
+	                 .arg(siKernelVersion)
+	                 .arg(siArchitecture)
+	                 .arg(siSystemVersion)
+	                 .arg(id)
+	                 ;
 	return string;
 }
